@@ -90,14 +90,13 @@ def pause(ende, aussentemperatur):
 
 # einzelner Umlauf des Busses
 def umlauf(fahrgaeste, aussentemperatur):
-    global soc, kumulierter_energieverbrauch, uhrzeit, t, zurueckgelegte_distanz, status, v_ist, v_soll, steigung, \
+    global soc, kumulierter_energieverbrauch, uhrzeit, t, zurueckgelegte_distanz, v_ist, v_soll, steigung, \
         beschleunigung, leistung_batterie, liste, ladeleistung, temperatur, soc_vor_umlauf, uhrzeit_vor_umlauf, haltezeit_ampel
     print(datetime.datetime.strftime(uhrzeit, '%H:%M'), ': Umlauf gestartet.')
     Fahrzeug.anzahl_fahrgaeste = fahrgaeste
     temperatur = aussentemperatur
     soc_vor_umlauf = soc
     uhrzeit_vor_umlauf = uhrzeit
-
     t_max = Route.strecke.shape[0]
 
     # Initialisierung der Schleife
@@ -109,7 +108,6 @@ def umlauf(fahrgaeste, aussentemperatur):
 
     # Schleife, die läuft bis Umlauf beendet
     while t < t_max:
-
         # Geschwindigkeit im aktuellen Intervall
         v_ist = Route.strecke.loc[t, 'speed (km/h)'] / 3.6
 
@@ -154,7 +152,7 @@ def energieverbrauch():
     fahrwiderstaende = Fahrzeug.fahrwiderstaende(v_ist, beschleunigung, steigung)
     leistung_em = Elektromotor.leistung(fahrwiderstaende, v_ist)
     leistung_nv = Nebenverbraucher.leistung(temperatur)
-    ladeleistung = Route.dwpt_ladeleistung(zurueckgelegte_distanz, 'dynamisch')
+    ladeleistung = Route.dwpt_ladeleistung(t, 'dynamisch')
     benoetigte_leistung = leistung_em + leistung_nv - ladeleistung
 
     leistung_batterie = Batterie.leistung(benoetigte_leistung)
