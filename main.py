@@ -6,27 +6,22 @@ import time
 start = time.time()
 #######################################################################################################################
 # SCHRITT 1: NAME DER SIMULATION FESTLEGEN
-name_simulation = 'Test3'
+name_simulation = 'Test'
 
 #######################################################################################################################
 # SCHRITT 2: FESTE PARAMETER DES SIMULIERTEN FAHRZEUGS FESTLEGEN
 # siehe Dateien: 'Fahrzeug', 'Elektromotor', 'Batterie', 'Nebenverbraucher', 'DWPT'
 
 #######################################################################################################################
-# SCHRITT 3: DIE STRECKENCHARAKTERISTIK DURCH AUSFÜLLEN EINER INPUTDATEI IN EXCEL FESTLEGEN
-strecke = 'Inputdateien/2022 Balingen/Rückweg.csv'
-Route.strecke_einlesen(strecke)
-#######################################################################################################################
-# SCHRITT 4: MITHILFE VON GOOGLE MAPS UND GPS-VISUALIZER EINE CSV-DATEI MIT STEIGUNGSANGABEN GENERIEREN
-#               1) Route in Google Maps konstruieren
+# SCHRITT 3: CSV MIT STRECKENCHARAKTERISTIK EINLESEN
+#               1) GPS-Log im GPX-Format aufzeichnen
 #               2) https://www.gpsvisualizer.com/convert_input
 #                   - Output format: plain text
-#                   - URL aus Google Maps angeben
-#                   - Google API-Key angeben
 #                   - Plain text delimiter: comma
-#                   - Add estimated fields: slope(%)
-#                   - Add DEM elevation data: best available source
-#               3) In angegebenem Pfad ablegen oder Pfad zur CSV-Datei hier angeben
+#                   - Add estimated fields: speed, slope(%)
+
+strecke = 'Inputdateien/2022 Balingen/Hinweg.csv'
+Route.strecke_einlesen(strecke)
 
 #######################################################################################################################
 # SCHRITT 5: BETRIEBSSTART ANGEBEN (Programm stellt Uhrzeit ein)
@@ -37,7 +32,7 @@ Betrieb.uhrzeit = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
 # SCHRITT 6: UMLÄUFE UND LADEPAUSEN ANEINANDERREIHEN
 # Befehle:
 # Betrieb.umlauf(fahrgaeste, aussentemperatur)
-# Betrieb.pause(ende=datetime.datetime.strptime('hh:mm')) mit Angabe, wann der nächste Umlauf beginnt
+# Betrieb.pause(ende=datetime.datetime.strptime('hh:mm')) mit Angabe, wann der nächste Umlauf beginnt.
 
 # Je nach Fahrplan können die Befehle mit Schleifen aneindergereiht werden.
 # Außentemperaturen und Fahrgastzahlen können für jeden Umlauf neu festgelegt werden.
@@ -60,36 +55,11 @@ while Betrieb.uhrzeit < datetime_ende:
     datetime_start += datetime.timedelta(minutes=takt)
     Betrieb.pause(ende=datetime_start, aussentemperatur=0)
 
-# takt = 30 # 30-Minuten-Takt
-# uhrzeit_ende = '20:48'
-# mittagspause_start = '12:15'
-# mittagspause_ende = '12:45'
-# datetime_start = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
-# datetime_ende = datetime.datetime.strptime(uhrzeit_ende, '%H:%M')
-# datetime_mittagspause_start = datetime.datetime.strptime(mittagspause_start, '%H:%M')
-# datetime_mittagspause_ende = datetime.datetime.strptime(mittagspause_ende, '%H:%M')
-#
-# aussentemperatur = 20
-# fahrgaeste = 15
-#
-# while Betrieb.uhrzeit < datetime_mittagspause_start:
-#     Betrieb.umlauf(fahrgaeste, aussentemperatur)
-#     datetime_start += datetime.timedelta(minutes=takt)
-#     Betrieb.pause(ende=datetime_start, aussentemperatur=aussentemperatur)
-#
-# Betrieb.pause(ende=datetime_mittagspause_ende, aussentemperatur=aussentemperatur)
-# datetime_start += datetime.timedelta(minutes=takt)
-# Betrieb.pause(ende=datetime_start, aussentemperatur=aussentemperatur)
-#
-# while Betrieb.uhrzeit < datetime_ende:
-#     Betrieb.umlauf(fahrgaeste, aussentemperatur)
-#     datetime_start += datetime.timedelta(minutes=takt)
-#     Betrieb.pause(ende=datetime_start, aussentemperatur=aussentemperatur)
-
 #######################################################################################################################
 # FINALER SCHRITT: PROGRAMM AUSFÜHREN
 # Die Outputdatei wird unter dem oben angegebenen Namen im Ordner Outputdateien gespeichert
 ende1 = time.time()
+
 #######################################################################################################################
 # Output als formatierte Tabelle in Excel-Dokument
 Ausgabe.formatierung(name_simulation, Betrieb.daten_uebersicht, Betrieb.daten_umlaeufe)

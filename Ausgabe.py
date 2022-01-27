@@ -36,7 +36,6 @@ def daten_sichern():
                   'Außen-\ntemperatur \n[°C]': Betrieb.temperatur,
                   'Typ': 'Umlauf',
                   'SoC zum Zeitpunkt t \n[%]': Betrieb.soc,
-                  #'Status': Betrieb.status,
                   'Ist-Geschwindigkeit zum Zeitpunkt t \n[km/h]': Betrieb.v_ist * 3.6,
                   'Steigung im Intervall [t, t+1) \n[%]': Betrieb.steigung,
                   'Gewählte Beschleunigung im Intervall [t, t+1) \n[m/s²]': Betrieb.beschleunigung,
@@ -73,7 +72,7 @@ def formatierung(name_simulation, daten_uebersicht, daten_umlaeufe):
                           {'Parameter [Einheit]': 'Rollwiderstandsbeiwert [-]', 'Wert': Fahrzeug.f_roll},
                           {'Parameter [Einheit]': 'Luftwiderstandsbeiwert [-]', 'Wert': Fahrzeug.c_w},
                           {'Parameter [Einheit]': 'Konstante Leistung der Nebenverbraucher (ohne Klimatisierung) [kW]', 'Wert': Nebenverbraucher.leistung_sonstiges / 1000},
-                          {'Parameter [Einheit]': 'Haltezeit an Ampeln [s]', 'Wert': Betrieb.haltezeit_ampel}]
+                          ]
 
         uebersicht_parameter = pd.DataFrame(parameterwerte)
         uebersicht_parameter.to_excel(writer, sheet_name='Parameter', index=False)
@@ -110,7 +109,7 @@ def formatierung(name_simulation, daten_uebersicht, daten_umlaeufe):
             worksheet = writer.sheets[str(i + 1) + ' ' + daten_umlaeufe[i]['Typ'][0]]
 
             if daten_umlaeufe[i]['Typ'][0] == 'Umlauf':
-                tabellenbereich_umlauf = 'A1:P' + str(len(daten_umlaeufe[i]['Typ']) + 1)
+                tabellenbereich_umlauf = 'A1:N' + str(len(daten_umlaeufe[i]['Typ']) + 1)
             if daten_umlaeufe[i]['Typ'][0] == 'Pause':
                 tabellenbereich_umlauf = 'A1:H' + str(len(daten_umlaeufe[i]['Typ']) + 1)
 
@@ -119,7 +118,7 @@ def formatierung(name_simulation, daten_uebersicht, daten_umlaeufe):
                 ueberschriften_umlauf.append({'header': j})
             worksheet.add_table(tabellenbereich_umlauf, {'columns': ueberschriften_umlauf,
                                                          'style': 'Table Style Light 11'})
-            worksheet.set_column('A:P', 15, format_ganzzahl)
+            worksheet.set_column('A:N', 15, format_ganzzahl)
             worksheet.set_column('K:K', 15, format_gleitzahl)
             worksheet.set_row(0, None, format_ueberschrift)
 

@@ -20,7 +20,6 @@ uhrzeit: datetime.datetime
 uhrzeit_vor_umlauf: datetime.datetime
 soc_vor_umlauf: float
 temperatur: float
-status: str
 v_ist: float
 v_soll: float
 steigung: float
@@ -32,7 +31,6 @@ leistung_batterie: float
 energieverbrauch_im_intervall: float
 kumulierter_energieverbrauch: float
 liste: list
-haltezeit_ampel = 15 # 15 Sekunden, übernommen von Rogge, Wollny und Sauer (2015)
 
 
 # (Lade-)Pause an Start-/Zielhaltestelle
@@ -111,9 +109,11 @@ def umlauf(fahrgaeste, aussentemperatur):
 
     # Schleife, die läuft bis Umlauf beendet
     while t < t_max:
-        print(f't={t}')
+
+        # Geschwindigkeit im aktuellen Intervall
         v_ist = Route.strecke.loc[t, 'speed (km/h)'] / 3.6
 
+        # Geschwindigkeit im folgenden Intervall
         if t == t_max - 1:
             v_neu = v_ist
         else:
@@ -146,7 +146,7 @@ def umlauf(fahrgaeste, aussentemperatur):
 
 
 # Berechnung des Energieverbrauchs bei geg. Parametern Ist-Geschwindigkeit, Beschleunigung,
-# Steigung, Außentemperatur, zurückgelegter Distanz
+# Steigung, Außentemperatur, zurückgelegte Distanz
 def energieverbrauch():
     global leistung_batterie, ladeleistung, leistung_em, leistung_nv
 
