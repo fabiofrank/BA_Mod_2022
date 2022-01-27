@@ -1,6 +1,5 @@
 import datetime
 import pandas as pd
-from scipy import constants
 import Fahrer
 import Route
 import DWPT
@@ -101,7 +100,7 @@ def umlauf(fahrgaeste, aussentemperatur):
     soc_vor_umlauf = soc
     uhrzeit_vor_umlauf = uhrzeit
 
-    streckenlaenge = Route.strecke['zurückgelegte Distanz [km]'].iloc[-1] * 1000
+    t_max = Route.strecke.shape[0]
 
     # Initialisierung der Schleife
     t = 0  # Zeit in s
@@ -111,56 +110,35 @@ def umlauf(fahrgaeste, aussentemperatur):
     liste = []
 
     # Schleife, die läuft bis Umlauf beendet
-    while zurueckgelegte_distanz < streckenlaenge:
+    while t < t_max:
 
-        # Erreicht der Bus eine Haltestelle, so hält er an, steht für 30 Sekunden und fährt wieder los
-        if Route.haltestelle(zurueckgelegte_distanz):
-            # Der Bus kommt zum Stehen
-            anhalten()
+        print(f't={t}')
 
-            status = 'Halten: Bushaltestelle'
-            zeile = Route.momentane_position_strecke(zurueckgelegte_distanz)
-            geplante_abfahrt = uhrzeit_vor_umlauf + datetime.timedelta(
-                minutes=Route.strecke['Fahrplan [Minuten nach Start]'][zeile])
-            min_haltezeit = Route.strecke['Haltezeit [s]'][zeile]
+        v_ist = Route.strecke.loc[t, 'speed (km/h)'] / 3.6
 
-
-            # Der Bus steht bis er wieder im Fahrplan ist, aber mindestens 20 Sekunden
-            if uhrzeit < geplante_abfahrt:
-                zeit_bis_geplante_abfahrt = (geplante_abfahrt - uhrzeit).seconds
-                haltezeit = max(min_haltezeit, zeit_bis_geplante_abfahrt)
-            else:
-                haltezeit = min_haltezeit
-
-
-            for i in range(0, int(haltezeit)):
-                stehen()
-
-            # Nach dem Halt fährt der Bus wieder los
-            # Solange bis nächste Zeile in Inputtabelle erreicht
-
-            while zurueckgelegte_distanz < 1000 * Route.strecke['zurückgelegte Distanz [km]'][zeile + 1]:
-                fahren()
-
-        # Erreicht der Bus eine Ampel, so hält er an und steht 15 s lang und fährt wieder los
-        elif Route.ampel(zurueckgelegte_distanz):
-            anhalten()
-            status = 'Halten: Ampel'
-
-            anzahl_intervalle = int(haltezeit_ampel / zeit_intervall)
-
-            for i in range(0, anzahl_intervalle):
-                stehen()
-
-            # Nach dem Halt fährt der Bus wieder los
-            # Solange bis nächste Zeile in Inputtabelle erreicht
-            zeile = Route.momentane_position_strecke(zurueckgelegte_distanz)
-            while zurueckgelegte_distanz < 1000 * Route.strecke['zurückgelegte Distanz [km]'][zeile + 1]:
-                fahren()
-
-        # "Normalfall": Der Bus muss nicht anhalten und fährt einfach
+        if t == t_max - 1:
+            v_neu = v_ist
         else:
-            fahren()
+            v_neu = Route.strecke.loc[t + 1, 'speed (km/h)'] / 3.6
+
+        zurueckgelegte_distanz = Route.strecke.loc[t, 'distance (km)'] / 1000
+        steigung = Route.steigung(t)
+        beschleunigung = Fahrer.beschleunigung(v_ist, v_neu, zeit_intervall)
+
+        # Berechnung des Energieverbrauchs
+        energieverbrauch_im_intervall = energieverbrauch()
+
+        # Aktualisieren des Gesamtenergieverbrauchs im Umlauf
+        kumulierter_energieverbrauch += energieverbrauch_im_intervall
+
+        # Gesammelte Daten abspeichern (wichtig: vor dem Aktualisieren des SoC)
+        Ausgabe.daten_sichern()
+
+        # Laden bzw. Entladen der Batterie, Berechnung des neuen SoC
+        soc = Batterie.state_of_charge(energieverbrauch_im_intervall)
+
+        # Nächste Iteration
+        t += zeit_intervall
 
     # Tabelle mit allen relevanten Daten des Umlaufs wird erstellt und zurückgegeben
     umlauf_tabelle = pd.DataFrame(liste)
@@ -196,129 +174,4 @@ def energieverbrauch():
     return realer_energieverbrauch_im_intervall  # in Joule
 
 
-def fahren():
-    global soc, kumulierter_energieverbrauch, uhrzeit, t, zurueckgelegte_distanz, v_ist, v_soll, steigung, \
-        beschleunigung, energieverbrauch_im_intervall, status
 
-    status = 'Fahren'
-    steigung = Route.steigung(zurueckgelegte_distanz)
-    v_soll = Route.v_soll(zurueckgelegte_distanz)
-
-    # Der Fahrer wählt in Abhängigkeit von Soll- und Ist-Geschwindigkeit eine Beschleunigung oder Verzögerung aus
-    beschleunigung = Fahrer.beschleunigung(v_ist, v_soll)
-
-    # Berechnung des Energieverbrauchs
-    energieverbrauch_im_intervall = energieverbrauch()
-
-    # Aktualisieren des Gesamtenergieverbrauchs im Umlauf
-    kumulierter_energieverbrauch += energieverbrauch_im_intervall
-
-    # Gesammelte Daten abspeichern (wichtig: vor dem Aktualisieren des SoC)
-    Ausgabe.daten_sichern()
-
-    # Laden bzw. Entladen der Batterie, Berechnung des neuen SoC
-    soc = Batterie.state_of_charge(energieverbrauch_im_intervall)
-
-    # Berechnung der zurückgelegten Strecke und der neuen Ist-Geschwindigkeit
-    zurueckgelegte_distanz += 0.5 * beschleunigung * (zeit_intervall ** 2) + v_ist * zeit_intervall
-    v_ist += beschleunigung * zeit_intervall
-    if v_ist < 0:
-        v_ist = 0.0  # Ist-Geschwindigkeit wird nicht kleiner 0
-    t += zeit_intervall
-    uhrzeit += datetime.timedelta(seconds=zeit_intervall)
-
-
-# Im Falle von Bushaltestellen sowie Ampeln muss der Bus zum Stehen kommen.
-# Nachträglich wird ermittelt, welche Energiemenge bei der Bremsung vor der Haltestelle rekuperiert wurde.
-# Diese wird im Modell im Stillstand aufgenommen bis Zeit und Energieverbrauch korrigiert sind.
-def anhalten():
-    global soc, kumulierter_energieverbrauch, uhrzeit, t, v_ist, v_soll, \
-        beschleunigung, leistung_batterie, ladeleistung, leistung_em, leistung_nv, energieverbrauch_im_intervall, status
-
-    # Ermittlung von Bremszeit und Bremsweg bei konstanter Bremsverzögerung
-    bremsverzoegerung = 0.19 * constants.g  # Kirchner, Schubert und Haas (2014)
-    bremszeit = v_ist / bremsverzoegerung  # in Sekunden
-    bremsweg = 0.5 * bremsverzoegerung * (bremszeit ** 2)
-
-    # Ermittlung des Zeitfehlers
-    if v_ist == 0.0:
-        fehlende_zeitintervalle = 0
-
-    else:
-        zusaetzliche_haltezeit = bremszeit - bremsweg / v_ist
-        fehlende_zeitintervalle = round(zusaetzliche_haltezeit / zeit_intervall)
-
-    # Ermittlung des Fehlers im Energieverbrauch
-
-    # 1) Energie, die verbraucht wurde, da das Modell gefahren ist (anstatt schon zu bremsen)
-    beschleunigung = 0.0
-    energieverbrauch_fahren = energieverbrauch() * ((bremsweg / v_ist) / zeit_intervall)
-
-    # 2) Energie, die bei der Bremsung rekuperiert worden wäre
-    energieverbrauch_bremsen = 0  # zu bestimmen
-    for i in range(0, round(bremszeit)):
-        beschleunigung = -bremsverzoegerung
-        energieverbrauch_bremsen += energieverbrauch()
-        v_ist += beschleunigung
-
-    energieverbrauch_fehler_gesamt = energieverbrauch_bremsen - energieverbrauch_fahren
-
-    # Korrektur des Energieverbrauchs
-    for i in range(0, fehlende_zeitintervalle):
-        # Das Fahrzeug steht bis Zeit korrigiert ist
-        status = 'Korrektursekunde'
-        v_ist = 0.0
-        v_soll = 0.0
-        beschleunigung = 0.0
-
-        # Während der zeitkorrigierenden, zusätzlichen Haltezeit wird eine konstante Rekuperationsleistung simuliert
-        ladeleistung = 0.0
-        leistung_nv = 0.0
-        leistung_em = 0.0
-        leistung_batterie = energieverbrauch_fehler_gesamt / fehlende_zeitintervalle
-        energieverbrauch_im_intervall = leistung_batterie * zeit_intervall
-        kumulierter_energieverbrauch += energieverbrauch_im_intervall
-
-        # Speichern der Daten, Aktualisieren von SoC, Zeit und Uhrzeit
-        Ausgabe.daten_sichern()
-        soc = Batterie.state_of_charge(energieverbrauch_im_intervall)
-        t += zeit_intervall
-        uhrzeit += datetime.timedelta(seconds=zeit_intervall)
-
-
-# Klimatisierung/Heizung sowie weitere Nebenverbraucher verbrauchen weiter Energie
-# Ggf. wird Energie induktiv aufgenommen
-def stehen():
-    global soc, kumulierter_energieverbrauch, uhrzeit, t, leistung_batterie, leistung_nv, leistung_em, ladeleistung, \
-        energieverbrauch_im_intervall, status
-
-    # Der Elektromotor dreht nicht, lediglich die Nebenverbraucher benötigen Leistung
-    leistung_em = 0.0
-    leistung_nv = Nebenverbraucher.leistung(temperatur)
-    ladeleistung = Route.dwpt_ladeleistung(zurueckgelegte_distanz, 'statisch')
-    benoetigte_leistung = leistung_nv - ladeleistung
-    leistung_batterie = Batterie.leistung(benoetigte_leistung)
-
-    # Berechnung des Energieverbrauchs
-    # Im Falle von Energieaufnahme darf der SoC von 100% nicht überschritten werden
-    theoretischer_energieverbrauch_im_intervall = leistung_batterie * zeit_intervall
-
-    if (Batterie.inhalt * 3600000) - theoretischer_energieverbrauch_im_intervall > (Batterie.kapazitaet * 3600000):
-        energieverbrauch_im_intervall = (Batterie.inhalt - Batterie.kapazitaet) * 3600000
-    elif (Batterie.inhalt * 3600000) - theoretischer_energieverbrauch_im_intervall < 0:
-        energieverbrauch_im_intervall = 0.0
-    else:
-        energieverbrauch_im_intervall = theoretischer_energieverbrauch_im_intervall
-
-    # Aktualisieren des Gesamtenergieverbrauchs im Umlauf
-    kumulierter_energieverbrauch += energieverbrauch_im_intervall
-
-    # Gesammelte Daten abspeichern (wichtig: vor dem Aktualisieren des SoC)
-    Ausgabe.daten_sichern()
-
-    # Laden bzw. Entladen der Batterie, Berechnung des neuen SoC
-    soc = Batterie.state_of_charge(energieverbrauch_im_intervall)
-
-    # Aktualisieren von Zeit und Uhrzeit
-    t += zeit_intervall
-    uhrzeit += datetime.timedelta(seconds=zeit_intervall)
