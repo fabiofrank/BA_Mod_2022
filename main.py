@@ -6,7 +6,7 @@ import time
 start = time.time()
 #######################################################################################################################
 # SCHRITT 1: NAME DER SIMULATION FESTLEGEN
-name_simulation = 'Test1'
+name_simulation = 'Test3'
 
 #######################################################################################################################
 # SCHRITT 2: FESTE PARAMETER DES SIMULIERTEN FAHRZEUGS FESTLEGEN
@@ -14,7 +14,7 @@ name_simulation = 'Test1'
 
 #######################################################################################################################
 # SCHRITT 3: DIE STRECKENCHARAKTERISTIK DURCH AUSFÜLLEN EINER INPUTDATEI IN EXCEL FESTLEGEN
-strecke = 'Inputdateien/2022 Balingen/Hinweg.csv'
+strecke = 'Inputdateien/2022 Balingen/Rückweg.csv'
 Route.strecke_einlesen(strecke)
 #######################################################################################################################
 # SCHRITT 4: MITHILFE VON GOOGLE MAPS UND GPS-VISUALIZER EINE CSV-DATEI MIT STEIGUNGSANGABEN GENERIEREN
@@ -30,7 +30,7 @@ Route.strecke_einlesen(strecke)
 
 #######################################################################################################################
 # SCHRITT 5: BETRIEBSSTART ANGEBEN (Programm stellt Uhrzeit ein)
-uhrzeit_start = '07:18'  # Format hh:mm
+uhrzeit_start = '08:00'  # Format hh:mm
 Betrieb.uhrzeit = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
 
 #######################################################################################################################
@@ -42,7 +42,23 @@ Betrieb.uhrzeit = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
 # Je nach Fahrplan können die Befehle mit Schleifen aneindergereiht werden.
 # Außentemperaturen und Fahrgastzahlen können für jeden Umlauf neu festgelegt werden.
 
-Betrieb.umlauf(30, 20)
+takt = 15
+uhrzeit_ende = '17:00'
+datetime_start = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
+datetime_ende = datetime.datetime.strptime(uhrzeit_ende, '%H:%M')
+
+while Betrieb.uhrzeit < datetime_ende:
+    Route.strecke_einlesen('Inputdateien/2022 Balingen/Hinweg.csv')
+    Betrieb.umlauf(fahrgaeste=30, aussentemperatur=0)
+
+    datetime_start += datetime.timedelta(minutes=takt)
+    Betrieb.pause(ende=datetime_start, aussentemperatur=0)
+
+    Route.strecke_einlesen('Inputdateien/2022 Balingen/Rückweg.csv')
+    Betrieb.umlauf(fahrgaeste=30, aussentemperatur=0)
+
+    datetime_start += datetime.timedelta(minutes=takt)
+    Betrieb.pause(ende=datetime_start, aussentemperatur=0)
 
 # takt = 30 # 30-Minuten-Takt
 # uhrzeit_ende = '20:48'

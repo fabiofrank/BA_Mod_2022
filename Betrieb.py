@@ -111,9 +111,7 @@ def umlauf(fahrgaeste, aussentemperatur):
 
     # Schleife, die läuft bis Umlauf beendet
     while t < t_max:
-
         print(f't={t}')
-
         v_ist = Route.strecke.loc[t, 'speed (km/h)'] / 3.6
 
         if t == t_max - 1:
@@ -121,7 +119,7 @@ def umlauf(fahrgaeste, aussentemperatur):
         else:
             v_neu = Route.strecke.loc[t + 1, 'speed (km/h)'] / 3.6
 
-        zurueckgelegte_distanz = Route.strecke.loc[t, 'distance (km)'] / 1000
+        zurueckgelegte_distanz = Route.strecke.loc[t, 'distance (km)'] * 1000
         steigung = Route.steigung(t)
         beschleunigung = Fahrer.beschleunigung(v_ist, v_neu, zeit_intervall)
 
@@ -138,6 +136,7 @@ def umlauf(fahrgaeste, aussentemperatur):
         soc = Batterie.state_of_charge(energieverbrauch_im_intervall)
 
         # Nächste Iteration
+        uhrzeit += datetime.timedelta(seconds=zeit_intervall)
         t += zeit_intervall
 
     # Tabelle mit allen relevanten Daten des Umlaufs wird erstellt und zurückgegeben
