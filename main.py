@@ -6,7 +6,7 @@ import time
 start = time.time()
 #######################################################################################################################
 # SCHRITT 1: NAME DER SIMULATION FESTLEGEN
-name_simulation = 'Test'
+name_simulation = 'BadCase_ohneDWPT'
 
 #######################################################################################################################
 # SCHRITT 2: FESTE PARAMETER DES SIMULIERTEN FAHRZEUGS FESTLEGEN
@@ -23,6 +23,7 @@ name_simulation = 'Test'
 strecke = 'Inputdateien/2022 Balingen/Hinweg.csv'
 Route.strecke_einlesen(strecke)
 
+print(Route.strecke)
 #######################################################################################################################
 # SCHRITT 5: BETRIEBSSTART ANGEBEN (Programm stellt Uhrzeit ein)
 uhrzeit_start = '08:00'  # Format hh:mm
@@ -38,23 +39,29 @@ Betrieb.uhrzeit = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
 # Außentemperaturen und Fahrgastzahlen können für jeden Umlauf neu festgelegt werden.
 
 takt = 15
-uhrzeit_ende = '17:00'
+uhrzeit_ende = '20:00'
 datetime_start = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
 datetime_ende = datetime.datetime.strptime(uhrzeit_ende, '%H:%M')
 
 while Betrieb.uhrzeit < datetime_ende:
     Route.strecke_einlesen('Inputdateien/2022 Balingen/Hinweg.csv')
-    Betrieb.umlauf(fahrgaeste=30, aussentemperatur=0)
+    # Route.dwpt_abschnitt_hinzufügen(t_start=5, t_stop=50)
+    Betrieb.umlauf(fahrgaeste=60, aussentemperatur=30, beschreibung='Hinweg Messe-Stadthalle')
 
     datetime_start += datetime.timedelta(minutes=takt)
-    Betrieb.pause(ende=datetime_start, aussentemperatur=0)
+    Betrieb.pause_ohne_laden(ende=datetime_start - datetime.timedelta(minutes=4), aussentemperatur=30)
+    Betrieb.ladepause(ende=datetime_start, aussentemperatur=30)
 
     Route.strecke_einlesen('Inputdateien/2022 Balingen/Rückweg.csv')
-    Betrieb.umlauf(fahrgaeste=30, aussentemperatur=0)
+    # Route.dwpt_abschnitt_hinzufügen(t_start=5, t_stop=50)
+    Betrieb.umlauf(fahrgaeste=60, aussentemperatur=30, beschreibung='Rückweg Stadthalle-Messe')
 
     datetime_start += datetime.timedelta(minutes=takt)
-    Betrieb.pause(ende=datetime_start, aussentemperatur=0)
+    Betrieb.pause_ohne_laden(ende=datetime_start - datetime.timedelta(minutes=4), aussentemperatur=30)
+    Betrieb.ladepause(ende=datetime_start, aussentemperatur=30)
 
+Betrieb.ladepause(ende=datetime.datetime.strptime('1900-01-02 01:00:00', '%Y-%m-%d %H:%M:%S'), aussentemperatur=30)
+print()
 #######################################################################################################################
 # FINALER SCHRITT: PROGRAMM AUSFÜHREN
 # Die Outputdatei wird unter dem oben angegebenen Namen im Ordner Outputdateien gespeichert

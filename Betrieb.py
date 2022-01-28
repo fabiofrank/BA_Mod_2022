@@ -32,11 +32,10 @@ energieverbrauch_im_intervall: float
 kumulierter_energieverbrauch: float
 liste: list
 
-
-# (Lade-)Pause an Start-/Zielhaltestelle
-def pause(ende, aussentemperatur):
+# Ladepause an Start-/Zielhaltestelle
+def ladepause(ende, aussentemperatur):
     global soc, kumulierter_energieverbrauch, uhrzeit, t, liste, ladeleistung, leistung_nv, leistung_batterie, temperatur
-    print(datetime.datetime.strftime(uhrzeit, '%H:%M'), ': Pause gestartet.')
+    print(datetime.datetime.strftime(uhrzeit, '%H:%M'), ': Ladepause gestartet.')
     # Initialisierung
     t = 0
     temperatur = aussentemperatur
@@ -78,7 +77,61 @@ def pause(ende, aussentemperatur):
     pause_tabelle = pd.DataFrame(liste)
     daten_umlaeufe.append(pause_tabelle)
 
-    ergebnis_pause = {'Typ': 'Pause ',
+    ergebnis_pause = {'Typ': 'Ladepause',
+                      'Uhrzeit zu Beginn': datetime.datetime.strftime(uhrzeit_vor_pause, '%H:%M'),
+                      'Uhrzeit am Ende': datetime.datetime.strftime(uhrzeit, '%H:%M'),
+                      'Außentemperatur [°C]': temperatur,
+                      'SoC zu Beginn [%]': soc_vor_pause,
+                      'SoC am Ende [%]': soc,
+                      'Energieverbrauch des Intervalls [kWh]': kumulierter_energieverbrauch / 3600000}
+    daten_uebersicht.append(ergebnis_pause)
+
+# (Lade-)Pause an Start-/Zielhaltestelle
+def pause_ohne_laden(ende, aussentemperatur):
+    global soc, kumulierter_energieverbrauch, uhrzeit, t, liste, ladeleistung, leistung_nv, leistung_batterie, temperatur
+    print(datetime.datetime.strftime(uhrzeit, '%H:%M'), ': Pause ohne Laden gestartet.')
+    # Initialisierung
+    t = 0
+    temperatur = aussentemperatur
+    soc_vor_pause = soc
+    uhrzeit_vor_pause = uhrzeit
+    uhrzeit_nach_pause = ende
+    liste = []
+    kumulierter_energieverbrauch = 0.0  # in Joule
+    ladeleistung = 0.0  # in Watt
+    leistung_nv = Nebenverbraucher.leistung(temperatur)
+    leistung_batterie = Batterie.leistung(leistung_nv - ladeleistung)
+    theoretische_energieaufnahme = leistung_batterie * zeit_intervall  # in Joule
+
+    # Sonderfall: Pause kann nicht stattfinden, da vorheriger Umlauf zu lange gebraucht hat
+    if uhrzeit > uhrzeit_nach_pause:
+        Ausgabe.daten_sichern_pause()
+    else:
+        # Pause läuft bis zu gegebener Uhrzeit (Beginn der nächsten Fahrt)
+        while uhrzeit <= uhrzeit_nach_pause:
+            # Der SoC von 100% nicht überschritten werden
+            if (Batterie.inhalt * 3600000) - theoretische_energieaufnahme > (Batterie.kapazitaet * 3600000):
+                energieaufnahme = (Batterie.inhalt - Batterie.kapazitaet) * 3600000
+            elif (Batterie.inhalt * 3600000) - theoretische_energieaufnahme < 0:
+                energieaufnahme = 0.0
+            else:
+                energieaufnahme = theoretische_energieaufnahme
+
+            # Energie wird "verbraucht" bzw. aufgenommen (negativ)
+            kumulierter_energieverbrauch += energieaufnahme
+
+            # Abspeichern
+            Ausgabe.daten_sichern_pause()
+
+            # Aktualisieren der Größen
+            soc = Batterie.state_of_charge(energieaufnahme)
+            uhrzeit += datetime.timedelta(seconds=zeit_intervall)
+            t += zeit_intervall
+
+    pause_tabelle = pd.DataFrame(liste)
+    daten_umlaeufe.append(pause_tabelle)
+
+    ergebnis_pause = {'Typ': 'Pause ohne Laden',
                       'Uhrzeit zu Beginn': datetime.datetime.strftime(uhrzeit_vor_pause, '%H:%M'),
                       'Uhrzeit am Ende': datetime.datetime.strftime(uhrzeit, '%H:%M'),
                       'Außentemperatur [°C]': temperatur,
@@ -89,7 +142,7 @@ def pause(ende, aussentemperatur):
 
 
 # einzelner Umlauf des Busses
-def umlauf(fahrgaeste, aussentemperatur):
+def umlauf(fahrgaeste, aussentemperatur, beschreibung):
     global soc, kumulierter_energieverbrauch, uhrzeit, t, zurueckgelegte_distanz, v_ist, v_soll, steigung, \
         beschleunigung, leistung_batterie, liste, ladeleistung, temperatur, soc_vor_umlauf, uhrzeit_vor_umlauf, haltezeit_ampel
     print(datetime.datetime.strftime(uhrzeit, '%H:%M'), ': Umlauf gestartet.')
@@ -140,7 +193,7 @@ def umlauf(fahrgaeste, aussentemperatur):
     # Tabelle mit allen relevanten Daten des Umlaufs wird erstellt und zurückgegeben
     umlauf_tabelle = pd.DataFrame(liste)
     daten_umlaeufe.append(umlauf_tabelle)
-    Ausgabe.daten_sichern_uebersicht()
+    Ausgabe.daten_sichern_uebersicht(beschreibung)
 
 
 # Berechnung des Energieverbrauchs bei geg. Parametern Ist-Geschwindigkeit, Beschleunigung,

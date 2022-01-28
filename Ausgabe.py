@@ -5,8 +5,8 @@ import Betrieb
 import DWPT
 from Fahrzeugkomponenten import Batterie, Elektromotor, Fahrzeug, Getriebe, Leistungselektronik, Nebenverbraucher
 
-def daten_sichern_uebersicht():
-    ergebnis_umlauf = {'Typ': 'Umlauf ',
+def daten_sichern_uebersicht(beschreibung):
+    ergebnis_umlauf = {'Typ': f'Umlauf: {beschreibung}',
                        'Uhrzeit zu Beginn': datetime.datetime.strftime(Betrieb.uhrzeit_vor_umlauf, '%H:%M'),
                        'Uhrzeit am Ende': datetime.datetime.strftime(Betrieb.uhrzeit, '%H:%M'),
                        'Außentemperatur [°C]': Betrieb.temperatur,

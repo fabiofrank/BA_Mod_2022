@@ -6,10 +6,10 @@ import DWPT
 
 strecke: pd.DataFrame
 
-
 def strecke_einlesen(csv_datei):
     global strecke
     strecke = pd.read_csv(csv_datei)
+    strecke['DWPT'] = [False for t in strecke.index]
 
 def dwpt_abschnitt_hinzufügen(t_start, t_stop):
     global strecke
