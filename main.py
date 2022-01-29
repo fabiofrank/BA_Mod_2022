@@ -45,7 +45,9 @@ datetime_ende = datetime.datetime.strptime(uhrzeit_ende, '%H:%M')
 
 while Betrieb.uhrzeit < datetime_ende:
     Route.strecke_einlesen('Inputdateien/2022 Balingen/Hinweg.csv')
-    # Route.dwpt_abschnitt_hinzufügen(t_start=5, t_stop=50)
+    Route.dwpt_abschnitt_hinzufügen(t_start=104, t_stop=144) # DWPT-Abschnitt Süd
+    Route.dwpt_abschnitt_hinzufügen(t_start=144, t_stop=161) # DWPT-Abschnitt Mitte
+    Route.dwpt_abschnitt_hinzufügen(t_start=217, t_stop=280) # DWPT-Abschnitt Nord
     Betrieb.umlauf(fahrgaeste=60, aussentemperatur=30, beschreibung='Hinweg Messe-Stadthalle')
 
     datetime_start += datetime.timedelta(minutes=takt)
