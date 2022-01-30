@@ -13,13 +13,9 @@ def strecke_einlesen(csv_datei):
 
 def dwpt_abschnitt_hinzufügen(t_start, t_stop):
     global strecke
-    dwpt_bool = []
     for t in strecke.index:
         if t >= t_start and t < t_stop:
-            dwpt_bool.append(True)
-        else:
-            dwpt_bool.append(False)
-    strecke['DWPT'] = dwpt_bool
+            strecke.loc[t, 'DWPT'] = True
 
 # Funktion gibt die Steigung in Prozent zurück, die auf einem bestimmten Streckenabschnitt auf der Route vorliegt
 def steigung(zeile):
