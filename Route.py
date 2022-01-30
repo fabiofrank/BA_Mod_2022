@@ -22,7 +22,7 @@ def steigung(zeile):
     steigung_in_prozent = strecke['slope (%)'][zeile]
     return steigung_in_prozent
 
-# Ist DWPT-Marker in Route gesetzt, so wird die feste Ladeleistung von 25 kW zurückgegeben
+# Ist DWPT-Marker in Route gesetzt, so wird die DWPT-Ladeleistung zurückgegeben
 def dwpt_ladeleistung(zeile, dynamisch_oder_statisch):
     if dynamisch_oder_statisch == 'dynamisch':
          wirkungsgrad = DWPT.wirkungsgrad_dynamisch

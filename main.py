@@ -6,7 +6,7 @@ import time
 start = time.time()
 #######################################################################################################################
 # SCHRITT 1: NAME DER SIMULATION FESTLEGEN
-name_simulation = 'BadCase_ohneDWPT'
+name_simulation = 'Test'
 
 #######################################################################################################################
 # SCHRITT 2: FESTE PARAMETER DES SIMULIERTEN FAHRZEUGS FESTLEGEN
@@ -20,10 +20,15 @@ name_simulation = 'BadCase_ohneDWPT'
 #                   - Plain text delimiter: comma
 #                   - Add estimated fields: speed, slope(%)
 
-strecke = 'Inputdateien/2022 Balingen/Hinweg.csv'
-Route.strecke_einlesen(strecke)
+# strecke = 'Inputdateien/2022 Balingen/Hinweg.csv'
+# Route.strecke_einlesen(strecke)
 
-print(Route.strecke)
+#######################################################################################################################
+# SCHRITT 4: DWPT-ABSCHNITTE HINZUFÜGEN
+# Jeder Abschnitt wird durch das Zeitintervall definiert, in welchem der Bus die elektrifizierte Strecke passiert
+# Route.dwpt_abschnitt_hinzufügen(t_start, t_stop)
+# Route.dwpt_abschnitt_hinzufügen(t_start, t_stop)
+
 #######################################################################################################################
 # SCHRITT 5: BETRIEBSSTART ANGEBEN (Programm stellt Uhrzeit ein)
 uhrzeit_start = '08:00'  # Format hh:mm
@@ -73,6 +78,6 @@ ende1 = time.time()
 # Output als formatierte Tabelle in Excel-Dokument
 Ausgabe.formatierung(name_simulation, Betrieb.daten_uebersicht, Betrieb.daten_umlaeufe)
 ende2 = time.time()
-print('{:5.3f}s'.format(ende1-start))
-print('{:5.3f}s'.format(ende2-ende1))
-print('{:5.3f}s'.format(ende2-start))
+print('Rechenzeit: {:5.3f}s'.format(ende1-start))
+print('Erstellen der Outputdatei: {:5.3f}s'.format(ende2-ende1))
+print('Total: {:5.3f}s'.format(ende2-start))
