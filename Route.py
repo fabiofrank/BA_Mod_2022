@@ -13,7 +13,7 @@ def strecke_einlesen(csv_datei):
     uhrzeit_start = datetime.datetime.strptime(strecke_raw['time'][0], '%Y-%m-%d %H:%M:%S')
     uhrzeit_ende = datetime.datetime.strptime(strecke_raw.iloc[-1,:]['time'], '%Y-%m-%d %H:%M:%S')
 
-    # Fehlende Zeilen (Stillstand ergänzen)
+    # Fehlende Zeilen (=Sekunden) ergänzen
     liste = []
     uhrzeit = uhrzeit_start
     while uhrzeit < uhrzeit_ende:
@@ -28,10 +28,10 @@ def strecke_einlesen(csv_datei):
             liste.append(zeile)
 
         uhrzeit += datetime.timedelta(seconds=1)
-
     strecke = pd.DataFrame(liste)
+
+    # DWPT-Spalte hinzufügen
     strecke['DWPT'] = [False for t in strecke.index]
-    strecke.to_csv('strecke_test.csv')
 
 def dwpt_abschnitt_hinzufügen(t_start, t_stop):
     global strecke

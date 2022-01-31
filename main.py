@@ -47,28 +47,32 @@ takt = 15
 uhrzeit_ende = '20:00'
 datetime_start = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
 datetime_ende = datetime.datetime.strptime(uhrzeit_ende, '%H:%M')
+anzahl_fahrgaeste = 20
+temperatur = 20
+ladezeit = 8
 
 while Betrieb.uhrzeit < datetime_ende:
     Route.strecke_einlesen('Inputdateien/2022 Balingen/Hinweg.csv')
     Route.dwpt_abschnitt_hinzufügen(t_start=104, t_stop=144) # DWPT-Abschnitt Süd
-    Route.dwpt_abschnitt_hinzufügen(t_start=144, t_stop=161) # DWPT-Abschnitt Mitte
-    Route.dwpt_abschnitt_hinzufügen(t_start=217, t_stop=280) # DWPT-Abschnitt Nord
-    Betrieb.umlauf(fahrgaeste=60, aussentemperatur=30, beschreibung='Hinweg Messe-Stadthalle')
+    #Route.dwpt_abschnitt_hinzufügen(t_start=144, t_stop=161) # DWPT-Abschnitt Mitte
+    #Route.dwpt_abschnitt_hinzufügen(t_start=217, t_stop=280) # DWPT-Abschnitt Nord
+    Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Hinweg Messe-Stadthalle')
 
     datetime_start += datetime.timedelta(minutes=takt)
-    Betrieb.pause_ohne_laden(ende=datetime_start - datetime.timedelta(minutes=4), aussentemperatur=30)
-    Betrieb.ladepause(ende=datetime_start, aussentemperatur=30)
+    Betrieb.pause_ohne_laden(ende=datetime_start - datetime.timedelta(minutes=ladezeit), aussentemperatur=temperatur)
+    Betrieb.ladepause(ende=datetime_start, aussentemperatur=temperatur)
 
     Route.strecke_einlesen('Inputdateien/2022 Balingen/Rückweg.csv')
-    # Route.dwpt_abschnitt_hinzufügen(t_start=5, t_stop=50)
-    Betrieb.umlauf(fahrgaeste=60, aussentemperatur=30, beschreibung='Rückweg Stadthalle-Messe')
+    #Route.dwpt_abschnitt_hinzufügen(t_start=95, t_stop=142) # Nord
+    #Route.dwpt_abschnitt_hinzufügen(t_start=202, t_stop=213) # Mitte
+    Route.dwpt_abschnitt_hinzufügen(t_start=213, t_stop=245) # Süd
+    Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Rückweg Stadthalle-Messe')
 
     datetime_start += datetime.timedelta(minutes=takt)
-    Betrieb.pause_ohne_laden(ende=datetime_start - datetime.timedelta(minutes=4), aussentemperatur=30)
-    Betrieb.ladepause(ende=datetime_start, aussentemperatur=30)
+    Betrieb.pause_ohne_laden(ende=datetime_start - datetime.timedelta(minutes=ladezeit), aussentemperatur=temperatur)
+    Betrieb.ladepause(ende=datetime_start, aussentemperatur=temperatur)
 
-Betrieb.ladepause(ende=datetime.datetime.strptime('1900-01-02 01:00:00', '%Y-%m-%d %H:%M:%S'), aussentemperatur=30)
-print()
+#Betrieb.ladepause(ende=datetime.datetime.strptime('1900-01-02 01:00:00', '%Y-%m-%d %H:%M:%S'), aussentemperatur=temperatur)
 #######################################################################################################################
 # FINALER SCHRITT: PROGRAMM AUSFÜHREN
 # Die Outputdatei wird unter dem oben angegebenen Namen im Ordner Outputdateien gespeichert

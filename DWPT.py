@@ -3,10 +3,10 @@
 wirkungsgrad_statisch = 0.8
 
 # EFFIZIENZ WÄHREND DER FAHRT
-wirkungsgrad_dynamisch = 0.8
+wirkungsgrad_dynamisch = 0.48
 
 # LEISTUNG EINER SPULE IN WATT
 ladeleistung = 20000 # Watt
 
 # ANZAHL DER DWPT-RECEIVER AM FAHRZEUG
-anzahl_spulen = 3
+anzahl_spulen = 4

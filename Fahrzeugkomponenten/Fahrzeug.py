@@ -5,7 +5,7 @@ from scipy import constants
 # KONSTANTE PARAMETER, DIE FÜR DIE SIMULATION FESTGELEGT WERDEN MÜSSEN
 
 # Leergewicht des Fahrzeugs in kg
-masse_leer = 12760
+masse_leer = 11500 # KA: 12760
 
 # Frontfäche des Fahrzeugs in qm
 stirnflaeche = 8.6649
