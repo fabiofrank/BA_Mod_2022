@@ -48,11 +48,12 @@ def uhrzeit_soc_array(datei):
 ################################################################################################################################
 fig, ax = plt.subplots(1, 1)
 
-datei2 = r'C:\Users\fabio\PycharmProjects\Bachelorarbeit_Git\Outputdateien\Balingen\Linie 24\Empfängerspulen\Linie24_2Receiver.xlsx'
-datei3 = r'C:\Users\fabio\PycharmProjects\Bachelorarbeit_Git\Outputdateien\Balingen\Linie 24\Empfängerspulen\Linie24_3Receiver.xlsx'
-datei4 = r'C:\Users\fabio\PycharmProjects\Bachelorarbeit_Git\Outputdateien\Balingen\Linie 24\Basisszenario\Basisszenario_Linie24_ohneMittagspause.xlsx'
-datei5 = r'C:\Users\fabio\PycharmProjects\Bachelorarbeit_Git\Outputdateien\Balingen\Linie 24\Empfängerspulen\Linie24_5Receiver.xlsx'
-datei6 = r'C:\Users\fabio\PycharmProjects\Bachelorarbeit_Git\Outputdateien\Balingen\Linie 24\Empfängerspulen\Linie24_6Receiver.xlsx'
+datei2 = r'C:\Users\fabio\PycharmProjects\BA_Mod\Outputdateien\GoodCase_NordMitteSüd.xlsx'
+datei3 = r'C:\Users\fabio\PycharmProjects\BA_Mod\Outputdateien\GoodCase_MitteSüd.xlsx'
+datei4 = r'C:\Users\fabio\PycharmProjects\BA_Mod\Outputdateien\GoodCase_Süd.xlsx'
+datei5 = r'C:\Users\fabio\PycharmProjects\BA_Mod\Outputdateien\BadCase_NordMitteSüd.xlsx'
+datei6 = r'C:\Users\fabio\PycharmProjects\BA_Mod\Outputdateien\BadCase_MitteSüd.xlsx'
+datei7 = r'C:\Users\fabio\PycharmProjects\BA_Mod\Outputdateien\BadCase_Süd.xlsx'
 
 
 (x2, y2) = uhrzeit_soc_array(datei2)
@@ -60,6 +61,7 @@ datei6 = r'C:\Users\fabio\PycharmProjects\Bachelorarbeit_Git\Outputdateien\Balin
 (x4, y4) = uhrzeit_soc_array(datei4)
 (x5, y5) = uhrzeit_soc_array(datei5)
 (x6, y6) = uhrzeit_soc_array(datei6)
+(x7, y7) = uhrzeit_soc_array(datei6)
 
 def batterie_leer(y):
     index = 0
@@ -76,12 +78,14 @@ batterie_leer(y3)
 batterie_leer(y4)
 batterie_leer(y5)
 batterie_leer(y6)
+batterie_leer(y7)
 
-plt.plot_date(x2, y2, '-', label='2 Empfänger')
-plt.plot_date(x3, y3, '-', label='3 Empfänger')
-plt.plot_date(x4, y4, '-', label='4 Empfänger (Basis)')
-plt.plot_date(x5, y5, '-', label='5 Empfänger')
-plt.plot_date(x6, y6, '-', label='6 Empfänger')
+plt.plot_date(x2, y2, '-', label='GoodCase_NordMitteSüd')
+plt.plot_date(x3, y3, '-', label='GoodCase_MitteSüd')
+plt.plot_date(x4, y4, '-', label='GoodCase_Süd')
+plt.plot_date(x5, y5, '-', label='BadCase_NordMitteSüd')
+plt.plot_date(x6, y6, '-', label='BadCase_MitteSüd')
+plt.plot_date(x6, y6, '-', label='BadCase_Süd')
 
 fmt = mdates.DateFormatter('%H:%M')
 ax.xaxis.set_major_formatter(fmt)
@@ -94,6 +98,6 @@ plt.legend(borderpad=1)
 #plt.title(r'$\bf{Linie\ 24\ -\ Basisszenario}$' + '\n10,5 km Umlauf, davon 2,4 km DWPT-unterstützt / 4 DWPT-Receiver / 174-kWh-Batterie (netto) / 15 Fahrgäste / 20 °C Außentemperatur', fontsize=15)
 plt.grid()
 fig.set_size_inches(7, 4)
-fig.savefig(r'C:\Users\fabio\Studium\Bachelorarbeit\BA Latex\Latex_Bachelorarbeit\Bilder\SoC_Receiver.pgf')
+fig.savefig(r'C:\Users\fabio\Studium\Bachelorarbeit\BA Latex\Latex_Bachelorarbeit\Bilder\SoC_CasesBalingen2022.pgf')
 
 #plt.show()
