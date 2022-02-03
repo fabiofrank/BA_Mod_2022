@@ -41,7 +41,7 @@ def ladepause(ende, aussentemperatur):
     temperatur = aussentemperatur
     soc_vor_pause = soc
     uhrzeit_vor_pause = uhrzeit
-    uhrzeit_nach_pause = ende
+    uhrzeit_nach_pause = datetime.datetime.strptime(ende, '%H:%M')
     liste = []
     kumulierter_energieverbrauch = 0.0  # in Joule
     ladeleistung = DWPT.anzahl_spulen * DWPT.ladeleistung * DWPT.wirkungsgrad_statisch  # in Watt
@@ -95,7 +95,7 @@ def pause_ohne_laden(ende, aussentemperatur):
     temperatur = aussentemperatur
     soc_vor_pause = soc
     uhrzeit_vor_pause = uhrzeit
-    uhrzeit_nach_pause = ende
+    uhrzeit_nach_pause = datetime.datetime.strptime(ende, '%H:%M')
     liste = []
     kumulierter_energieverbrauch = 0.0  # in Joule
     ladeleistung = 0.0  # in Watt
