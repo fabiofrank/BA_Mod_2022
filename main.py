@@ -6,7 +6,7 @@ import time
 start = time.time()
 #######################################################################################################################
 # SCHRITT 1: NAME DER SIMULATION FESTLEGEN
-name_simulation = 'Test'
+name_simulation = 'BadCase_ohneDWPT'
 
 #######################################################################################################################
 # SCHRITT 2: FESTE PARAMETER DES SIMULIERTEN FAHRZEUGS FESTLEGEN
@@ -43,18 +43,20 @@ Betrieb.uhrzeit = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
 # Je nach Fahrplan können die Befehle mit Schleifen aneindergereiht werden.
 # Außentemperaturen und Fahrgastzahlen können für jeden Umlauf neu festgelegt werden.
 
-takt = 15
+#takt = 15
 uhrzeit_ende = '20:00'
 datetime_start = datetime.datetime.strptime(uhrzeit_start, '%H:%M')
 datetime_ende = datetime.datetime.strptime(uhrzeit_ende, '%H:%M')
-anzahl_fahrgaeste = 20
-temperatur = 20
-ladezeit = 8
+anzahl_fahrgaeste = 60
+temperatur = 30
+#ladezeit = 8
 
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/01_Leerfahrt_Depot-Hochhaus.csv')
 Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Leerfahrt: Depot - Hochhaus')
 
+Betrieb.pause_ohne_laden(ende='06:55', aussentemperatur=temperatur)
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/02_2225_Hochhaus-Gymnasium.csv')
+#Route.dwpt_abschnitt_hinzufügen(850, 873)
 Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 2225: Hochhaus - Gymnasium')
 
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/03_Leerfahrt_Gymnasium-Bhf.csv')
@@ -62,11 +64,11 @@ Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschr
 
 Betrieb.pause_ohne_laden(ende='07:32', aussentemperatur=temperatur)
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/04_2229a_Bhf-Altenheim.csv')
-Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 2229: Bhf - Liegnitzer Str.')
+Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 2229: Bhf - Liegnitzer Str. (Teil A)')
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/05_2229b_Altenheim-LiegnitzerStr.csv')
-Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 2229: Bhf - Liegnitzer Str.')
+Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 2229: Bhf - Liegnitzer Str. (Teil B)')
 
-Betrieb.pause_ohne_laden(ende='07:40', aussentemperatur=temperatur)
+Betrieb.pause_ohne_laden(ende='07:45', aussentemperatur=temperatur)
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/06_103_LiegnitzerStr-Gymnasium.csv')
 Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 103: Liegnitzer Str. - Gymnasium')
 
@@ -75,10 +77,13 @@ Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschr
 
 Betrieb.pause_ohne_laden(ende='08:18', aussentemperatur=temperatur)
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/08_1411_Bhf-Bhf.csv')
+#Route.dwpt_abschnitt_hinzufügen(196, 220)
+#Route.dwpt_abschnitt_hinzufügen(3082, 3108)
 Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 1411: Bhf - Bhf')
 
 Betrieb.pause_ohne_laden(ende='09:12', aussentemperatur=temperatur)
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/09_2410_Bhf-Bhf.csv')
+#Route.dwpt_abschnitt_hinzufügen(609, 709)
 Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 2410: Bhf - Bhf')
 
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/10_Leerfahrt_Bhf-Depot.csv')
@@ -87,12 +92,16 @@ Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschr
 Betrieb.ladepause(ende='11:53', aussentemperatur=temperatur)
 
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/11_LeerfahrtA_Depot-Bhfstr.csv')
-Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Leerfahrt: Depot - Lisztstr')
+Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Leerfahrt: Depot - Lisztstr (Teil A)')
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/12_LeerfahrtB_Bhfstr-Lisztstr.csv')
-Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Leerfahrt: Depot - Lisztstr')
+Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Leerfahrt: Depot - Lisztstr (Teil B)')
 
 Betrieb.pause_ohne_laden(ende='12:05', aussentemperatur=temperatur)
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/13_2222-2227-2223-2228_Lisztstr-Bhf.csv')
+#Route.dwpt_abschnitt_hinzufügen(63, 136)
+#Route.dwpt_abschnitt_hinzufügen(1255, 1282)
+#Route.dwpt_abschnitt_hinzufügen(2881, 2928)
+#Route.dwpt_abschnitt_hinzufügen(4070, 4094)
 Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrten 2222 + 2223: Lisztstr - Bhf')
 
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/14_Leerfahrt_Bhf-Depot.csv')
@@ -107,6 +116,7 @@ Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschr
 
 Betrieb.pause_ohne_laden(ende='15:35', aussentemperatur=temperatur)
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/17_2224_Lauwasenschule-Menzelstr.csv')
+#Route.dwpt_abschnitt_hinzufügen(900, 926)
 Betrieb.umlauf(fahrgaeste=anzahl_fahrgaeste, aussentemperatur=temperatur, beschreibung='Fahrt 2224: Lauwasenschule - Menzelstr')
 
 Route.strecke_einlesen('Inputdateien/Balingen Linienbetrieb/18_Leerfahrt_Menzelstr-Depot.csv')
